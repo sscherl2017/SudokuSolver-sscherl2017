@@ -41,10 +41,13 @@ public class GameBoard
 	}
 	
 	/**
-	* A constructor that initializes board as a deep copy of another GameBoard.
+	* A constructor that initializes board as a deep copy of another GameBoard and adds the given number to the given spot.
 	* @param g		The GameBoard which is to be copied
+	* @param row		The row of the spot where the number will be added
+	* @param col		The col of the spot where the number will be added
+	* @param n		The number which will be placed in the given spot
 	*/
-	public GameBoard(GameBoard g)
+	public GameBoard(GameBoard g, int row, int col, int n)
 	{
 		board = new int[9][9];
 		for (int r = 0; r < 9; r++)
@@ -52,6 +55,7 @@ public class GameBoard
 			for (int c = 0; c < 9; c++)
 				board[r][c] = g.board[r][c];
 		}
+		board[row][col] = n;
 	}
 	
 	/** 
@@ -110,45 +114,43 @@ public class GameBoard
 	}
 	
 	/**
-	* Returns an Vector<Integer> that contains all the numbers that can be placed at a given spot.
-	* @param r		The row of the spot that will be tested
-	* @param c		The column of the spot that will be tested
-	* @return		The Vector<Integer> that contains all the numbers that can be placed at the given spot
-	*/
-	public Vector<Integer> possibleNumbers(int r, int c)
-	{
-		Vector<Integer> output = new Vector<Integer>(9);
-		for (int i = 0; i < 9; i++)
-		{
-			if (canPlace(r, c, i + 1))
-				output.add(i + 1);
-		}
-		return output;
-	}
-	
-	/**
-	* Returns the coordinates of the spot on the board that can have the fewest numbers placed in it.
-	* @return		The row of the most constrained pot followed by the column of the most constrained spot
+	* Returns the coordinates of the spot on the board that can have the fewest numbers placed in it, the amount of numbers that can go in the spot, and those numbers.
+	* @return		The row of the most constrained pot followed by the column of the most constrained spot, followed by the amount of numbers in the list, followed by the numbers which can go there
 	*/
 	public int[] mostConstrainedSpot()
 	{
-		int[] leastRowCol = new int[2];
-		leastRowCol[0] = -1;
-		leastRowCol[1] = -1;
-		int least = 10;
+	//leastRowColNums[0] and leastRowColNums[1] are row and column, leastRowColNums[2] is the amount of numbers that can go there
+	//and leastRowColNums[3 through 11] are either the number or a 0 if the number cant go there.
+		int[] leastRowColNums = new int[12];
+		leastRowColNums[0] = -1;
+		leastRowColNums[1] = -1;
+		int[] holder = new int[10];
 		for (int r = 0; r < 9; r++)
 		{
 			for (int c = 0; c < 9; c++)
 			{
-				if (possibleNumbers(r, c).size() < least && possibleNumbers(r, c).size() != 0)
+				for (int i = 1; i < 10 && board[r][c] == 0; i++)
 				{
-					least = possibleNumbers(r, c).size();
-					leastRowCol[0] = r;
-					leastRowCol[1] = c;
+					if(canPlace(r, c, i))
+					{
+						holder[i] = i;
+						holder[0] += 1;
+					}
 				}
+				if ((holder[0] < leastRowColNums[2] || leastRowColNums[2] == 0) && holder[0] != 0)
+				{
+					leastRowColNums[2] = holder[0];
+					leastRowColNums[0] = r;
+					leastRowColNums[1] = c;
+					for (int i = 0; i < 9; i++)
+						leastRowColNums[i + 3] = holder[i + 1];
+				}
+				if (holder[0] == 1)
+					return leastRowColNums;
+				holder = new int[10];
 			}
 		}
-		return leastRowCol;
+		return leastRowColNums;
 	}
 	
 	/**

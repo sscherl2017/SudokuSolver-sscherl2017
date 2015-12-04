@@ -9,6 +9,7 @@ public class Solver
 	* Takes in a sudoku board through the command line and outputs the solution. It adds the initial board to the stack.
 	* Then it removes the top board from the stack, checks if it is solved, finds the most constrained spot on the board, adds all possible numbers
 	* to the board at the most constrained spot, then adds all these back to the stack and repeats the process until the stack is empty.
+	* @param args		The number of the SudokuBoard the user wants to solve
 	*/
 	public static void main(String[] args)
 	{
@@ -26,15 +27,13 @@ public class Solver
 				System.out.println("Total execution time: " + (endTime - startTime) + " milliseconds" + "\n");
 				return;
 			}
-			if (current.mostConstrainedSpot()[0] != -1)
+			int[] mostConstrained = current.mostConstrainedSpot();
+			if (mostConstrained[0] != -1)
 			{
-				int[] mostConstrained = current.mostConstrainedSpot();
-				Vector<Integer> possibleNumbers = current.possibleNumbers(mostConstrained[0], mostConstrained[1]);
-				for (Integer i: possibleNumbers)
+				for (int i = 0; i < 9; i++)
 				{
-					GameBoard possibility = new GameBoard(current);
-					possibility.place(mostConstrained[0], mostConstrained[1], i);
-					stack.push(possibility);
+					if (mostConstrained[i + 3] != 0)
+						stack.push(new GameBoard(current, mostConstrained[0], mostConstrained[1], mostConstrained[i + 3]));
 				}
 			}
 		}
